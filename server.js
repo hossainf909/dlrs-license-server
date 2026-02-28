@@ -38,13 +38,16 @@ app.post("/verify-license", (req, res) => {
     if (new Date() > new Date(record.expiry))
       return res.json({ status: "expired" });
 
-    if (!record.active_devices.includes(device_id)) {
-      if (record.active_devices.length >= record.device_limit) {
-        return res.json({ status: "device_limit_reached" });
-      }
-
-      record.active_devices.push(device_id);
+    // 🔐 Device Binding Logic
+    if (!record.bound_device) {
+      // First time use → bind device
+      record.bound_device = device_id;
       writeDB(db);
+      return res.json({ status: "activated" });
+    }
+
+    if (record.bound_device !== device_id) {
+      return res.json({ status: "different_device" });
     }
 
     res.json({ status: "valid" });
