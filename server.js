@@ -1,13 +1,17 @@
 const express = require("express");
 const fs = require("fs");
+const path = require("path");
 const app = express();
 
 app.use(express.json());
 
-const DB_FILE = "./db.json";
+const DB_FILE = path.join(__dirname, "db.json");
 
 function readDB(){
-  return JSON.parse(fs.readFileSync(DB_FILE));
+  if(!fs.existsSync(DB_FILE)){
+    return { licenses: [] };
+  }
+  return JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
 }
 
 function writeDB(data){
@@ -20,26 +24,34 @@ app.get("/", (req,res)=>{
 
 app.post("/verify-license",(req,res)=>{
 
-const {license_key, device_id} = req.body;
-const db = readDB();
+  try{
 
-const record = db.licenses.find(l=>l.key===license_key);
+    const {license_key, device_id} = req.body;
+    const db = readDB();
 
-if(!record)
-  return res.json({status:"invalid"});
+    const record = db.licenses.find(l=>l.key===license_key);
 
-if(record.kill)
-  return res.json({status:"killed"});
+    if(!record)
+      return res.json({status:"invalid"});
 
-if(new Date() > new Date(record.expiry))
-  return res.json({status:"expired"});
+    if(record.kill)
+      return res.json({status:"killed"});
 
-if(!record.active_devices.includes(device_id)){
-  record.active_devices.push(device_id);
-  writeDB(db);
-}
+    if(new Date() > new Date(record.expiry))
+      return res.json({status:"expired"});
 
-res.json({status:"valid"});
+    if(!record.active_devices.includes(device_id)){
+      record.active_devices.push(device_id);
+      writeDB(db);
+    }
+
+    res.json({status:"valid"});
+
+  }catch(err){
+    console.error(err);
+    res.status(500).json({status:"server_error"});
+  }
+
 });
 
 app.listen(process.env.PORT || 3000, ()=>{
