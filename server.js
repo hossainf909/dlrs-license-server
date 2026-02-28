@@ -31,3 +31,25 @@ app.post("/verify-license", (req, res) => {
     res.status(500).json({ status: "server_error" });
   }
 });
+app.post("/admin/kill", (req, res) => {
+  const { license_key, kill } = req.body;
+  const db = readDB();
+
+  const record = db.licenses.find(l => l.key === license_key);
+
+  if (!record)
+    return res.json({ status: "not_found" });
+
+  record.kill = kill;
+  writeDB(db);
+
+  res.json({ status: "updated" });
+});
+fetch("https://your-url/admin/kill", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    license_key: "DLRS-12345",
+    kill: true
+  })
+})
