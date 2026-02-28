@@ -1,18 +1,16 @@
 {
   "licenses": [
     {
-      "key": "DLRS-UNLIMITED-001",
+      "key": "DLRS-001",
       "expiry": "2030-12-31",
       "kill": false,
-      "device_limit": -1,
-      "active_devices": []
+      "bound_device": null
     },
     {
-      "key": "DLRS-PRO-002",
-      "expiry": "2027-12-31",
+      "key": "DLRS-002",
+      "expiry": "2030-12-31",
       "kill": false,
-      "device_limit": 1,
-      "active_devices": []
+      "bound_device": null
     }
   ]
 }
