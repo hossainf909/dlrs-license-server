@@ -1,0 +1,10 @@
+{
+  "licenses": [
+    {
+      "key": "DLRS-12345",
+      "expiry": "2026-12-31",
+      "kill": false,
+      "active_devices": []
+    }
+  ]
+}
